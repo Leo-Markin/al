@@ -1,1 +1,766 @@
-do script_name("al");script_author("Sex");script_version("10.0");local v0=true;local v1=false;local v2=nil;if v0 then local v147=0;local v148;local v149;while true do if (v147==(0 + 0)) then v148,v149=pcall(loadstring,[[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=-1;sampAddChatMessage(b..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]]);if v148 then local v238=1613 -(1565 + 48) ;while true do if (v238==(0 + 0)) then v1,v2=pcall(v149);if v1 then local v293=1138 -(782 + 356) ;local v294;while true do if (v293==0) then v294=267 -(176 + 91) ;while true do if ((2 -1)==v294) then v2.url="https://raw.githubusercontent.com/Leo-Markin/al/main/al.lua";break;end if (v294==0) then v2.json_url="https://raw.githubusercontent.com/Leo-Markin/al/main/version.json?"   .. tostring(os.clock()) ;v2.prefix="["   .. thisScript().name   .. "]: " ;v294=1 -0 ;end end break;end end end break;end end end break;end end end require("lib.moonloader");local v3=require("encoding");v3.default="CP1251";u8=v3.UTF8;local v6=require("effil");local v7=require("lib.samp.events");local v8=require("json");require("luaircv2");local v9=require("memory");local v10=require("lib.windows.message");local v11=require("inicfg");local v12="https://script.google.com/macros/s/AKfycbzNtNu5282GGVQvXDsa7XEWw0i3Ypw_RWsfoih5ogFLF3gVcRD_AHTpEN9C_H9EAiZp/exec";local v13={server="lan.dal.net.ru",channel="#alsdasdfsfaz",tag="[LaunchGPS]"};local v14={[1147 -(975 + 117) ]=true,[56]=true,[1932 -(157 + 1718) ]=true,[498 + 115 ]=true,[2179 -1565 ]=true,[2102 -1487 ]=true};local v15="al_Temp.ini";local v16={marker={lastBlipId= -(1019 -(697 + 321))}};local v17=nil;local v18=false;local v19=2 -1 ;local v20=false;local v21={id= -1,weapon=0,time=0};local v22=0 -0 ;local v23=false;local v24=nil;local v25={};local v26=false;for v39,v40 in pairs(v14) do v25[v39]=false;end local v27=nil;local v28="";local v29={reconnectTimer=0 -0 };local v30=nil;local v31=nil;local v32={targets={},currentTarget= -(1 + 0),lastRequestTime=0 -0 ,dialogActive=false,waitingForGPS=false};local v33={};function SaveBlipToDisk(v42) local v43=v11.load(v16,v15);v43.marker.lastBlipId=v42;v11.save(v43,v15);end function ClearMarksSmart() local v45=0 -0 ;local v46;local v47;while true do if (v45==(1227 -(322 + 905))) then if v30 then local v200=0;while true do if ((611 -(602 + 9))==v200) then deleteCheckpoint(v30);v30=nil;break;end end end if v31 then local v201=1189 -(449 + 740) ;while true do if (v201==(872 -(826 + 46))) then removeBlip(v31);v31=nil;break;end end end v45=948 -(245 + 702) ;end if (v45==2) then v47=createCheckpoint(1,0,0,0,0,0 -0 ,0 + 0 ,0);deleteCheckpoint(v47);break;end if (v45==1) then v46=v11.load(v16,v15);if (v46 and (v46.marker.lastBlipId~= -(1899 -(260 + 1638)))) then local v202=440 -(382 + 58) ;local v203;while true do if ((0 -0)==v202) then v203=0 + 0 ;while true do if (v203==(0 -0)) then pcall(removeBlip,v46.marker.lastBlipId);v46.marker.lastBlipId= -(2 -1);v203=1206 -(902 + 303) ;end if (v203==1) then v11.save(v46,v15);break;end end break;end end end v45=3 -1 ;end end end function WorkInBackground(v48) local v49=0 -0 ;local v50;while true do if ((0 + 0)==v49) then v50=0;while true do if (0==v50) then v9.fill(5445615 -(1121 + 569) ,358 -(22 + 192) ,688 -(483 + 200) ,true);if v48 then local v251=1463 -(1404 + 59) ;while true do if (v251==(0 -0)) then v9.write(10261485 -2626615 ,766 -(468 + 297) ,563 -(334 + 228) ,true);v9.write(25752875 -18117841 ,2 -1 ,1 -0 ,true);v251=1 + 0 ;end if (v251==(237 -(141 + 95))) then v9.fill(7488845 + 134878 ,370 -226 ,18 -10 ,true);v9.fill(5499528,34 + 110 ,6,true);break;end end else local v252=0 -0 ;local v253;local v254;local v255;while true do if (v252==(0 + 0)) then v253=0 + 0 ;v254=nil;v252=1 -0 ;end if (v252==(1 + 0)) then v255=nil;while true do if (v253==0) then v9.write(7634870,0,164 -(92 + 71) ,true);v9.write(7635034,0,1 + 0 ,true);v253=1 -0 ;end if (v253==2) then v255={780 -(574 + 191) ,132,307 -184 ,1,126 -(55 + 71) ,1790 -(573 + 1217) };memset(15230509 -9730981 ,v255);break;end if (v253==(1 + 0)) then v254={1019 -(714 + 225) ,112 -31 ,255,827 -(118 + 688) ,0 + 0 ,441 -310 ,256 -123 ,0 -0 };memset(7623723,v254);v253=2;end end break;end end end break;end end break;end end end function memset(v51,v52) for v150=286 -(175 + 110) , #v52 do v9.write((v51 + v150) -1 ,v52[v150],2 -1 ,true);end end function onWindowMessage(v53,v54,v55) if (v53==v10.WM_KILLFOCUS) then if v27 then WorkInBackground(true);end elseif ((v53==v10.WM_SETFOCUS) and v27) then WorkInBackground(false);end end function asyncHttpRequest(v56,v57,v58,v59,v60) local v61=0 -0 ;local v62;while true do if (v61==0) then v62=v6.thread(function(v181,v182,v183) local v184=1796 -(503 + 1293) ;local v185;local v186;local v187;while true do if (v184==(0 -0)) then v185=require("requests_script");v186,v187=pcall(v185.request,v181,v182,v183);v184=1 + 0 ;end if (v184==(1062 -(810 + 251))) then if v186 then local v269=0 + 0 ;while true do if (v269==0) then v187.json,v187.xml=nil,nil;return true,v187;end end else return false,v187;end break;end end end)(v56,v57,v58);lua_thread.create(function() local v188=0 + 0 ;local v189;while true do if (v188==(0 + 0)) then v189=v62;while true do local v256=0;local v257;local v258;while true do if (v256==(534 -(43 + 490))) then wait(733 -(711 + 22) );break;end if (v256==(0 -0)) then v257,v258=v189:status();if  not v258 then if (v257=="completed") then local v324=859 -(240 + 619) ;local v325;local v326;while true do local v332=0;while true do if (v332==0) then if (v324==(1 + 0)) then return;end if (v324==(0 -0)) then v325,v326=v189:get();if v325 then(v59 or function() end)(v326);else (v60 or function() end)(v326);end v324=1 + 0 ;end break;end end end end else return (v60 or function() end)(v258);end v256=1;end end end break;end end end);break;end end end function sendDataToGoogle(v63) local v64=0;local v65;local v66;local v67;local v68;local v69;while true do if ((1744 -(1344 + 400))==v64) then v65=405 -(255 + 150) ;v66=nil;v64=1 + 0 ;end if ((1 + 0)==v64) then v67=nil;v68=nil;v64=8 -6 ;end if (v64==(6 -4)) then v69=nil;while true do if (v65==(1742 -(404 + 1335))) then function v69() local v246=0;while true do if (v246==0) then v23=false;if v24 then local v303=406 -(183 + 223) ;local v304;while true do if (v303==(0 -0)) then local v327=0 + 0 ;while true do if (v327==(1 + 0)) then v303=1;break;end if (v327==(337 -(10 + 327))) then v304=v24;v24=nil;v327=1 + 0 ;end end end if (v303==(339 -(118 + 220))) then sendDataToGoogle(v304);break;end end end break;end end end asyncHttpRequest("POST",v12,{headers={["Content-Type"]="application/x-www-form-urlencoded"},data="data="   .. v68 },v69,v69);break;end if (v65==(0 + 0)) then if v23 then local v259=0;local v260;while true do if (v259==(449 -(108 + 341))) then v260=0 + 0 ;while true do if (v260==(0 -0)) then local v315=0;while true do if (v315==0) then v24=v63;return;end end end end break;end end end v23=true;v65=1494 -(711 + 782) ;end if (v65==(3 -1)) then v68=string.gsub(u8:encode(v67),"([^%w %-%_%.%~])",function(v247) return string.format("%%%02X",string.byte(v247));end):gsub(" ","+");v69=nil;v65=472 -(270 + 199) ;end if (v65==(1 + 0)) then v66,v67=pcall(v8.encode,v63);if  not v66 then local v261=1819 -(580 + 1239) ;local v262;while true do if (v261==(0 -0)) then v262=0;while true do if (v262==0) then v23=false;return;end end break;end end end v65=2 + 0 ;end end break;end end end function IRC_Loop() while true do local v151=0 + 0 ;while true do if (v151==(0 + 0)) then wait(100);if (v27 and v27.__isConnected) then local v239=0 -0 ;local v240;local v241;local v242;while true do if (v239==(0 + 0)) then v240=1167 -(645 + 522) ;v241=nil;v239=1791 -(1010 + 780) ;end if (v239==(1 + 0)) then v242=nil;while true do if (v240==(0 -0)) then v241,v242=pcall(function() v27:think();end);if  not v241 then local v316=0 -0 ;while true do if ((1836 -(1045 + 791))==v316) then print("[al] IRC Error (Think): "   .. tostring(v242) );v27=nil;break;end end end break;end end break;end end elseif ((os.clock() -v29.reconnectTimer)>15) then local v263=0 -0 ;local v264;local v265;while true do if (v263==1) then if v264 then local v310=0 -0 ;local v311;local v312;local v313;local v314;while true do if ((505 -(351 + 154))==v310) then v28=sampGetPlayerNickname(v265);v311=v28   .. math.random(100,999) ;v310=1;end if (v310==3) then v313,v314=pcall(function() v312:connect(v13.server);end);if v313 then local v338=1574 -(1281 + 293) ;local v339;while true do if (v338==(267 -(28 + 238))) then if (v312 and v312.__isConnected) then v312:join(v13.channel);v27=v312;else print("[al] Connection timed out.");end break;end if (v338==0) then v339=0 -0 ;while v312 and  not v312.__isConnected and (v339<40)  do local v345=1559 -(1381 + 178) ;while true do if ((0 + 0)==v345) then wait(404 + 96 );pcall(function() v312:think();end);v345=1 + 0 ;end if ((3 -2)==v345) then v339=v339 + 1 + 0 ;break;end end end v338=1;end end else print("[al] Connection failed: "   .. tostring(v314) );end break;end if (v310==(472 -(381 + 89))) then v312:hook("OnChat",onIRCMessageReceived);v312:hook("OnDisconnect",function() print("[al] Disconnected.");v27=nil;end);v310=3 + 0 ;end if (v310==(1 + 0)) then print("[al] Connecting to IRC as "   .. v311   .. "..." );v312=irc.new({nick=v311});v310=2;end end end break;end if (v263==0) then v29.reconnectTimer=os.clock();v264,v265=sampGetPlayerIdByCharHandle(PLAYER_PED);v263=1 -0 ;end end end break;end end end end function onIRCMessageReceived(v70,v71,v72) local v73=1156 -(1074 + 82) ;local v74;local v75;while true do if (v73==2) then if v75:find("%[REQ_CATER%]") then local v204=0;local v205;while true do if (v204==(0 -0)) then if  not v26 then return;end v205=tonumber(v75:match("%[REQ_CATER%] (%d+)"));v204=1;end if (v204==(1785 -(214 + 1570))) then if v205 then if ( not v32.targets[v205] and  not v32.dialogActive) then local v305=0;while true do if (v305==(1455 -(990 + 465))) then if v33[v205] then v33[v205]:terminate();end v33[v205]=lua_thread.create(function() local v333=0 + 0 ;local v334;while true do if (0==v333) then v334=math.random(218 + 282 ,2918 + 82 );wait(v334);v333=3 -2 ;end if (v333==(1727 -(1668 + 58))) then if v33[v205] then local v344=626 -(512 + 114) ;while true do if (v344==(0 -0)) then v33[v205]=nil;v32.targets[v205]=0;v344=1 -0 ;end if (v344==(3 -2)) then IRC_SendAction("CLAIM_CATER",v205);break;end end end break;end end end);break;end end end end break;end end end if v75:find("%[CLAIM_CATER%]") then local v206=0 + 0 ;local v207;while true do if (v206==(0 + 0)) then v207=tonumber(v75:match("%[CLAIM_CATER%] (%d+)"));if v207 then if v33[v207] then v33[v207]:terminate();v33[v207]=nil;else end end break;end end end v73=3 + 0 ;end if (v73==(10 -7)) then if v75:find("%[DELCATER%]") then local v208=0;local v209;while true do if (v208==1) then if v209 then local v284=0;local v285;while true do if (v284==(1995 -(109 + 1885))) then if v33[v209] then local v329=0;while true do if (v329==(1470 -(1269 + 200))) then v285=true;break;end if (v329==(0 -0)) then v33[v209]:terminate();v33[v209]=nil;v329=1;end end end if v285 then end break;end if (v284==(815 -(98 + 717))) then v285=false;if (v32.targets[v209]~=nil) then local v330=826 -(802 + 24) ;while true do if (v330==0) then v32.targets[v209]=nil;v285=true;break;end end end v284=1;end end end break;end if (v208==0) then if  not v26 then return;end v209=tonumber(v75:match("%[DELCATER%] (%d+)"));v208=1 -0 ;end end end break;end if (v73==(1 -0)) then if (v70.nick:gsub("%d%d%d$","")==v28) then return;end if (v75:find(v13.tag,1 + 0 ,true) and v75:find("|")) then local v210=0;local v211;local v212;local v213;local v214;local v215;while true do if ((0 + 0)==v210) then v211,v212,v213,v214,v215=v75:match("%"   .. v13.tag   .. " (%d+)|([%d%.%-]+)|([%d%.%-]+)|([%d%.%-]+)|(.+)" );if v211 then local v286=0 + 0 ;local v287;local v288;local v289;while true do if ((1 + 0)==v286) then ClearMarksSmart();if v30 then deleteCheckpoint(v30);end v286=2;end if (v286==(8 -5)) then v31=addBlipForCoord(v287,v288,v289);changeBlipColour(v31,6134665050 -1856474715 );v286=4;end if (v286==(2 + 0)) then v30=createCheckpoint(1 + 0 ,v287,v288,v289,841 -(232 + 609) ,0 + 0 ,0,5);if v31 then removeBlip(v31);end v286=1436 -(797 + 636) ;end if (v286==(0 -0)) then sampAddChatMessage(string.format("{5599FF}[IRC] {FFFFFF}%s нашел катер {FFFF00}[ID:%s]{FFFFFF} в {00FF00}%s",v70.nick:gsub("%d%d%d$",""),v211,v215), -1);v287,v288,v289=tonumber(v212),tonumber(v213),tonumber(v214);v286=1620 -(1427 + 192) ;end if (v286==(2 + 2)) then SaveBlipToDisk(v31);break;end end end break;end end end v73=2;end if ((0 -0)==v73) then v74,v75=pcall(u8.decode,u8,v72);if  not v74 then v75=v72;end v73=1 + 0 ;end end end function IRC_SendGPS(v76,v77,v78,v79,v80) if (v27 and v27.__isConnected) then local v164=0 + 0 ;local v165;while true do if (v164==0) then v165=string.format("%s %d|%.2f|%.2f|%.2f|%s",v13.tag,v76,v77,v78,v79,v80);pcall(function() v27:sendChat(v13.channel,u8(v165));end);break;end end end end function IRC_SendAction(v81,v82) if (v27 and v27.__isConnected) then local v166=326 -(192 + 134) ;local v167;while true do if (v166==(1276 -(316 + 960))) then v167=string.format("%s [%s] %d",v13.tag,v81,v82);pcall(function() v27:sendChat(v13.channel,u8(v167));end);break;end end end end function main() local v83=0;while true do if (5==v83) then while true do local v190=0;local v191;while true do if (v190==(1 + 0)) then processSearchQueue();wait(78 + 22 );break;end if (v190==(0 + 0)) then v191=os.clock();if (v18 and ((v191-v22)>(3.2 -2))) then local v270=551 -(83 + 468) ;local v271;while true do if (0==v270) then v271=0;while true do if (v271==(1806 -(1202 + 604))) then checkAndSendBoats();checkDeathLogic();v271=4 -3 ;end if (v271==1) then monitorSpawnBoats();v22=v191;break;end end break;end end end v190=1 -0 ;end end end break;end if (v83==0) then if ( not isSampLoaded() or  not isSampfuncsLoaded()) then return;end while  not isSampAvailable() do wait(100);end if (v1 and v0 and v2) then pcall(v2.check,v2.json_url,v2.prefix,v2.url);end v83=1;end if (v83==(5 -3)) then sampRegisterChatCommand("findcater",cmd_findcater);sampRegisterChatCommand("cancelcater",cmd_cancelcater);sampRegisterChatCommand("findlist",cmd_findlist);v83=328 -(45 + 280) ;end if ((1 + 0)==v83) then if  not doesFileExist("moonloader/config/"   .. v15 ) then v11.save(v16,v15);end ClearMarksSmart();sampRegisterChatCommand("al",cmd_toggle);v83=2 + 0 ;end if (v83==(2 + 1)) then sampRegisterChatCommand("delmark",cmd_delmark);sampRegisterChatCommand("pladdcater",cmd_pladdcater);sampRegisterChatCommand("pldelcater",cmd_pldelcater);v83=3 + 1 ;end if (v83==(1 + 3)) then local v177=0 -0 ;while true do if (v177==(1911 -(340 + 1571))) then sampRegisterChatCommand("alreq",cmd_alreq);sampAddChatMessage("al v10.0 loaded.", -(1 + 0));v177=1773 -(1733 + 39) ;end if (v177==(2 -1)) then lua_thread.create(IRC_Loop);v83=5;break;end end end end end function monitorSpawnBoats() local v84={};local v85=getAllVehicles();for v152,v153 in ipairs(v85) do local v154=0;local v155;local v156;while true do if (v154==(1034 -(125 + 909))) then v155,v156=sampGetVehicleIdByCarHandle(v153);if (v155 and v14[v156]) then v84[v156]=true;end break;end end end for v157,v158 in pairs(v14) do local v159=1948 -(1096 + 852) ;local v160;local v161;while true do if (v159==(0 + 0)) then v160=v25[v157];v161=v84[v157] or false ;v159=1 -0 ;end if (v159==(1 + 0)) then if (v160 and  not v161) then if (v157==(1127 -(409 + 103))) then local v266=236 -(46 + 190) ;while true do if (v266==0) then IRC_SendAction("MANUAL_ALARM",v157);sendDataToGoogle({type="manual_alert",id=v157});break;end end elseif (v19==(96 -(51 + 44))) then v32.targets[v157]=0;elseif (v19==(1 + 1)) then IRC_SendAction("REQ_CATER",v157);end elseif ( not v160 and v161) then if (v157==(1932 -(1114 + 203))) then IRC_SendAction("MANUAL_RETURN",v157);elseif (v19==1) then v32.targets[v157]=nil;if (v32.currentTarget==v157) then v32.waitingForGPS=false;v32.dialogActive=false;end elseif (v19==(728 -(228 + 498))) then IRC_SendAction("DELCATER",v157);end end v25[v157]=v161;break;end end end end function processSearchQueue() if (v32.dialogActive or v32.waitingForGPS) then return;end if ((os.clock() -v32.lastRequestTime)<(1.5 + 1)) then return;end local v86= -(1 + 0);local v87=os.clock();for v162,v163 in pairs(v32.targets) do if ((v87-v163)>(683 -(174 + 489))) then v86=v162;break;end end if (v86~= -(2 -1)) then local v168=1905 -(830 + 1075) ;while true do if (v168==(524 -(303 + 221))) then v32.currentTarget=v86;v32.targets[v86]=v87;v168=1;end if (v168==(1270 -(231 + 1038))) then v32.lastRequestTime=v87;v32.dialogActive=true;v168=2 + 0 ;end if (v168==2) then sampSendChat("/trackerlist");break;end end end end function cmd_toggle(v88) local v89=1162 -(171 + 991) ;local v90;local v91;while true do if (v89==0) then v90=tonumber(v88);if ((v90==(4 -3)) or (v90==2) or (v90==3)) then local v220=0;local v221;while true do if (v220==0) then v221=0;while true do if (v221==0) then v19=v90;v18=true;break;end end break;end end elseif (v88=="") then v18= not v18;else local v248=0;while true do if (v248==(0 -0)) then sampAddChatMessage("Используйте: /al [1 - Solo, 2 - Squad, 3 - Monitor]", -(2 -1));return;end end end v89=1 + 0 ;end if (v89==2) then if v18 then local v222=0 -0 ;local v223;while true do if (v222==(5 -3)) then for v272,v273 in ipairs(v223) do local v274,v275=sampGetVehicleIdByCarHandle(v273);if (v274 and v14[v275]) then v25[v275]=true;end end break;end if (v222==(1 -0)) then v223=getAllVehicles();for v276,v277 in pairs(v14) do v25[v276]=false;end v222=6 -4 ;end if (v222==(1248 -(111 + 1137))) then sampAddChatMessage("al: "   .. "{00FF00}Включен" , -(159 -(91 + 67)));sampAddChatMessage("Режим: "   .. v91 , -(2 -1));v222=1 + 0 ;end end else sampAddChatMessage("al: "   .. "{FF0000}Выключен" , -1);end break;end if (v89==1) then v91="";if (v19==(524 -(423 + 100))) then v91="{00FFFF}SOLO (FindCater)";elseif (v19==(1 + 1)) then v91="{FF00FF}SQUAD (IRC Request)";elseif (v19==3) then v91="{FFFF00}PASSIVE (Monitor Only)";end v89=2;end end end function cmd_findcater(v92) local v93=0 -0 ;local v94;while true do if (v93==(0 + 0)) then v94=tonumber(v92);if v94 then local v224=0;while true do if (v224==(771 -(326 + 445))) then v32.targets[v94]=0;sampAddChatMessage("Катер ID:"   .. v94   .. " добавлен в поиск." ,279966 -215812 );break;end end end break;end end end function cmd_cancelcater(v95) local v96=0 -0 ;local v97;while true do if ((4 -2)==v96) then if v30 then local v225=711 -(530 + 181) ;local v226;while true do if (v225==(881 -(614 + 267))) then v226=32 -(19 + 13) ;while true do if (v226==0) then deleteCheckpoint(v30);v30=nil;break;end end break;end end end if v31 then local v227=0 -0 ;while true do if (v227==0) then removeBlip(v31);v31=nil;break;end end end v96=3;end if (v96==(6 -3)) then sampAddChatMessage("Поиск остановлен.",16711680);break;end if ((2 -1)==v96) then v32.dialogActive=false;v32.waitingForGPS=false;v96=1 + 1 ;end if (v96==0) then v97=tonumber(v95);if v97 then v32.targets[v97]=nil;else v32.targets={};end v96=1 -0 ;end end end function cmd_findlist() local v98=0 -0 ;while true do if (v98==(1812 -(1293 + 519))) then sampAddChatMessage("--- Активные поиски ---",130893 -66739 );for v194,v195 in pairs(v32.targets) do sampAddChatMessage("ID: "   .. v194 , -(2 -1));end break;end end end function cmd_delmark() ClearMarksSmart();sampAddChatMessage("Все метки удалены.",64154);end function cmd_pladdcater(v99) local v100=0;local v101;while true do if (v100==(0 -0)) then v101=tonumber(v99);if v101 then local v230=0 -0 ;while true do if (v230==(0 -0)) then sampAddChatMessage("Отправлен запрос на поиск катера ID: "   .. v101 ,33979 + 30175 );IRC_SendAction("REQ_CATER",v101);break;end end else sampAddChatMessage("Используйте: /pladdcater [id]", -(1 + 0));end break;end end end function cmd_pldelcater(v102) local v103=0 -0 ;local v104;while true do if (v103==(0 + 0)) then v104=tonumber(v102);if v104 then local v231=0 + 0 ;while true do if (v231==(0 + 0)) then sampAddChatMessage("Отмена отслеживания катера ID: "   .. v104 ,16711680);IRC_SendAction("DELCATER",v104);break;end end else sampAddChatMessage("Используйте: /pldelcater [id]", -(1097 -(709 + 387)));end break;end end end function cmd_alreq() local v105=0;while true do if (v105==(1858 -(673 + 1185))) then v26= not v26;sampAddChatMessage("Прием запросов IRC: "   .. ((v26 and "{00FF00}Включен") or "{FF0000}Выключен") , -(2 -1));break;end end end v7.onShowDialog=function(v106,v107,v108,v109,v110,v111) if ((v106==32700) and v32.dialogActive) then local v169=0;local v170;local v171;local v172;while true do if (v169==(3 -2)) then v172=nil;while true do local v244=0 -0 ;while true do if (v244==(1 + 0)) then if (v170==(2 + 0)) then v32.dialogActive=false;sampSendDialogResponse(v106,0, -(1 -0),"");v170=3;end if (v170==(1 + 0)) then for v308 in v111:gmatch("[^\r\n]+") do v172=v172 + 1 ;if v308:find("%[ID:"   .. v171   .. "%]" ) then local v319=0 -0 ;while true do local v331=0 -0 ;while true do if (v331==(1880 -(446 + 1434))) then if (v319==(1284 -(1040 + 243))) then v32.waitingForGPS=true;return false;end if ((0 -0)==v319) then sampSendDialogResponse(v106,1,v172-2 ,"");v32.dialogActive=false;v319=1848 -(559 + 1288) ;end break;end end end end end v32.targets[v171]=nil;v170=1933 -(609 + 1322) ;end break;end if (v244==0) then if (v170==(457 -(13 + 441))) then return false;end if (v170==0) then v171=v32.currentTarget;v172=0;v170=1;end v244=1;end end end break;end if (v169==(0 -0)) then v170=0;v171=nil;v169=2 -1 ;end end end end;v7.onSetRaceCheckpoint=function(v112,v113,v114,v115) if v32.waitingForGPS then local v173=0 -0 ;while true do if (v173==(0 + 0)) then outputCoords(v32.currentTarget,v113.x,v113.y,v113.z);v32.waitingForGPS=false;break;end end end end;v7.onSetCheckpoint=function(v116,v117) if v32.waitingForGPS then local v174=0 -0 ;local v175;while true do if (v174==(0 + 0)) then v175=0 + 0 ;while true do if (v175==0) then outputCoords(v32.currentTarget,v116.x,v116.y,v116.z);v32.waitingForGPS=false;break;end end break;end end end end;v7.onSendTakeDamage=function(v118,v119,v120,v121) if v18 then local v176=0 -0 ;while true do if ((0 + 0)==v176) then v21.id=v118;v21.weapon=v120;v176=1 -0 ;end if (v176==(1 + 0)) then v21.time=os.time();break;end end end end;v7.onServerMessage=function(v122,v123) if ((v32.currentTarget~= -1) and v32.targets[v32.currentTarget]) then if (v123:find("Пункт назначения выбран") and v123:find("Транспорт организации")) then return false;end end end;function checkDeathLogic() local v124=0;local v125;while true do if ((0 + 0)==v124) then v125=getCharHealth(PLAYER_PED);if ((v125<=(0 + 0)) and  not v20) then local v236=0 + 0 ;local v237;while true do if (v236==0) then v20=true;v237="Суицид/Окружение";v236=1 + 0 ;end if (v236==(434 -(153 + 280))) then if ((v21.id~= -1) and ((os.time() -v21.time)<(43 -28))) then local v291=0 + 0 ;local v292;while true do if (v291==0) then v292=(sampIsPlayerConnected(v21.id) and sampGetPlayerNickname(v21.id)) or "Unknown" ;v237=string.format("Убийца: %s (ID: %d)",v292,v21.id);break;end end end sendDataToGoogle({type="alert",info=v237,weapon=getWeaponName(v21.weapon)});break;end end elseif (v125>(0 + 0)) then v20=false;end break;end end end function checkAndSendBoats() local v126=0;local v127;local v128;local v129;while true do if (v126==0) then local v180=0 + 0 ;while true do if (v180==1) then v126=1 + 0 ;break;end if (v180==(0 + 0)) then v127={};for v249,v250 in ipairs(getAllVehicles()) do if (doesVehicleExist(v250) and (getCarModel(v250)==595)) then local v279=0 -0 ;local v280;local v281;local v282;local v283;while true do if ((1 + 0)==v279) then v283={veh_id=v282 or (667 -(89 + 578)) ,driver_name="Пустой",driver_id= -(1 + 0)};if ((v280~= -1) and doesCharExist(v280)) then local v320=0 -0 ;local v321;local v322;local v323;while true do if (v320==(1049 -(572 + 477))) then v321=0 + 0 ;v322=nil;v320=1;end if (v320==1) then v323=nil;while true do if (v321==(0 + 0)) then v322,v323=sampGetPlayerIdByCharHandle(v280);if v322 then local v346=0;while true do if (v346==(0 + 0)) then v283.driver_name=sampGetPlayerNickname(v323);v283.driver_id=v323;break;end end else v283.driver_name="NPC";end break;end end break;end end end v279=88 -(84 + 2) ;end if (v279==(0 -0)) then local v309=0;while true do if ((1 + 0)==v309) then v279=843 -(497 + 345) ;break;end if (v309==(0 + 0)) then v280=getDriverOfCar(v250);v281,v282=sampGetVehicleIdByCarHandle(v250);v309=1 + 0 ;end end end if (2==v279) then table.insert(v127,v283);break;end end end end v180=1334 -(605 + 728) ;end end end if (v126==(2 + 0)) then for v196,v197 in ipairs(v127) do table.insert(v128,v197.veh_id   .. "|"   .. v197.driver_name );end v129=table.concat(v128,";");v126=6 -3 ;end if (v126==(1 + 0)) then table.sort(v127,function(v198,v199) return v198.veh_id<v199.veh_id ;end);v128={};v126=2;end if (v126==(10 -7)) then if (v129~=v17) then v17=v129;if ( #v127>0) then sendDataToGoogle({type="boats",list=v127});end end break;end end end function outputCoords(v130,v131,v132,v133) local v134=0;local v135;local v136;local v137;while true do if (v134==(0 + 0)) then v135=0 -0 ;v136=nil;v134=1 + 0 ;end if (v134==1) then v137=nil;while true do if (v135==(491 -(457 + 32))) then IRC_SendGPS(v130,v131,v132,v133,v136);sendDataToGoogle({type="gps_alert",id=v130,square=v136});break;end if (0==v135) then local v245=0 + 0 ;while true do if (v245==(1403 -(832 + 570))) then v135=1 + 0 ;break;end if ((0 + 0)==v245) then v136=getSquareByCoords(v131,v132);v137={["М-7"]=true,["М-8"]=true,["Л-8"]=true,["Л-7"]=true,["К-7"]=true,["И-7"]=true,["З-7"]=true,["З-6"]=true,["Ж-6"]=true,["Ж-5"]=true,["З-5"]=true};v245=3 -2 ;end end end if ((1 + 0)==v135) then if v137[v136] then return;end sampAddChatMessage(string.format("Катер [%d]: Квадрат {00FF00}%s",v130,v136),64950 -(588 + 208) );v135=5 -3 ;end end break;end end end function getSquareByCoords(v138,v139) local v140=0;local v141;local v142;local v143;while true do if (v140==(1802 -(884 + 916))) then v143=math.ceil(((v139 *  -(1 -0)) + 3000)/250 );if (v143<(1 + 0)) then v143=654 -(232 + 421) ;end v140=1892 -(1569 + 320) ;end if (1==v140) then if (v142<(1 + 0)) then v142=1 + 0 ;end if (v142>24) then v142=24;end v140=6 -4 ;end if (v140==(608 -(316 + 289))) then if (v143>24) then v143=62 -38 ;end return (v141[v143] or "?")   .. "-"   .. v142 ;end if (v140==(0 + 0)) then v141={[1454 -(666 + 787) ]="А",[427 -(360 + 65) ]="Б",[3 + 0 ]="В",[4]="Г",[259 -(79 + 175) ]="Д",[9 -3 ]="Ж",[6 + 1 ]="З",[8]="И",[9]="К",[30 -20 ]="Л",[20 -9 ]="М",[911 -(503 + 396) ]="Н",[13]="О",[195 -(92 + 89) ]="П",[28 -13 ]="Р",[9 + 7 ]="С",[11 + 6 ]="Т",[18]="У",[74 -55 ]="Ф",[3 + 17 ]="Х",[21]="Ц",[22]="Ч",[52 -29 ]="Ш",[21 + 3 ]="Я"};v142=math.ceil((v138 + 1433 + 1567)/(761 -511) );v140=1 + 0 ;end end end function getWeaponName(v144) local v145=0;local v146;while true do if (v145==0) then v146={[0]="Fist",[1]="Brass Knuckles",[2 -0 ]="Golf Club",[1247 -(485 + 759) ]="Nightstick",[8 -4 ]="Knife",[1194 -(442 + 747) ]="Bat",[6]="Shovel",[1142 -(832 + 303) ]="Pool Cue",[954 -(88 + 858) ]="Katana",[3 + 6 ]="Chainsaw",[10]="Dildo",[10 + 1 ]="Dildo 2",[12]="Vibrator",[13]="Vibrator 2",[1 + 13 ]="Flowers",[804 -(766 + 23) ]="Cane",[16]="Grenade",[83 -66 ]="Tear Gas",[24 -6 ]="Molotov",[57 -35 ]="Colt 45",[78 -55 ]="Silenced",[24]="Deagle",[1098 -(1036 + 37) ]="Shotgun",[19 + 7 ]="Sawnoff",[52 -25 ]="Combat Shotgun",[23 + 5 ]="Uzi",[1509 -(641 + 839) ]="MP5",[943 -(910 + 3) ]="AK-47",[78 -47 ]="M4",[32]="Tec-9",[33]="Rifle",[1718 -(1466 + 218) ]="Sniper",[35]="RPG",[17 + 19 ]="Heatseeker",[37]="Flamethrower",[1186 -(556 + 592) ]="Minigun",[14 + 25 ]="Satchel",[848 -(329 + 479) ]="Detonator",[895 -(174 + 680) ]="Spraycan",[42]="Extinguisher",[147 -104 ]="Camera",[91 -47 ]="Night Vision",[33 + 12 ]="Thermal Vision",[46]="Parachute",[49]="Vehicle Ram",[789 -(396 + 343) ]="Helicopter Blades",[5 + 46 ]="Explosion",[1530 -(29 + 1448) ]="Drowned",[1443 -(135 + 1254) ]="Collision"};return v146[v144];end end end end
+script_name('al')
+script_author('Sex')
+script_version('11.0')
+
+local enable_autoupdate = true 
+local autoupdate_loaded = false
+local Update = nil
+
+-- === DEBUG SYSTEM ===
+local DEBUG_LOG = false
+local LOG_FILE = getWorkingDirectory() .. "\\al_debug.log"
+
+function log_debug(text)
+    if not DEBUG_LOG then return end
+    local f = io.open(LOG_FILE, "a")
+    if f then
+        f:write(string.format("[%s] %s\n", os.date("%H:%M:%S"), text))
+        f:close()
+    end
+end
+
+if DEBUG_LOG then
+    local f = io.open(LOG_FILE, "w")
+    if f then f:write("=== STARTED AL v11.0 ===\n"); f:close() end
+end
+
+if enable_autoupdate then
+    local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=-1;sampAddChatMessage(b..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
+    if updater_loaded then
+        autoupdate_loaded, Update = pcall(Updater)
+        if autoupdate_loaded then
+            Update.json_url = "https://raw.githubusercontent.com/Leo-Markin/al/main/version.json?" .. tostring(os.clock())
+            Update.prefix = "[" .. thisScript().name .. "]: "
+            Update.url = "https://raw.githubusercontent.com/Leo-Markin/al/main/al.lua"
+        end
+    end
+end
+
+require "lib.moonloader"
+local encoding = require "encoding"
+encoding.default = "CP1251"
+u8 = encoding.UTF8
+local effil = require 'effil'
+local sampev = require 'lib.samp.events'
+local json = require "json" 
+require 'luaircv2'
+
+local memory = require 'memory'
+local wm = require 'lib.windows.message'
+local inicfg = require "inicfg" 
+
+-- === КОНФИГУРАЦИЯ ===
+local scriptUrl = 'https://script.google.com/macros/s/AKfycbzNtNu5282GGVQvXDsa7XEWw0i3Ypw_RWsfoih5ogFLF3gVcRD_AHTpEN9C_H9EAiZp/exec'
+local IRC_CONFIG = {
+    server = "lan.dal.net.ru", 
+    channel = "#alsdasdfsfaz", 
+    tag = "[LaunchGPS]" 
+}
+
+local TARGET_BOAT_IDS = { [55]=true, [56]=true, [57]=true, [613]=true, [614]=true, [615]=true }
+local CARGOBOB_MODEL = 548
+
+local tempIniFile = "al_Temp.ini"
+local tempIniData = { marker = { lastBlipId = -1 } }
+
+-- === ПЕРЕМЕННЫЕ ===
+local lastReportState = nil
+local isWorking = false
+local trackingMode = 1 
+local wasDead = false 
+local lastDamage = { id = -1, weapon = 0, time = 0 }
+local lastTickTime = 0
+local boatSpawnState = {} 
+for id, _ in pairs(TARGET_BOAT_IDS) do boatSpawnState[id] = false end
+
+local activeCheckpoint = nil
+local activeBlip = nil
+
+local searchEngine = {
+    targets = {},       
+    currentTarget = -1, 
+    lastRequestTime = 0, 
+    dialogActive = false, 
+    waitingForGPS = false 
+}
+
+-- Каргобоб
+local lastCargobobReportState = nil
+local cargobobSpawnState = {}
+local knownCargobobIds = {}
+
+-- IRC Переменные
+local allowRemoteRequests = false
+local ircClient = nil
+local myNick = ""
+local ircState = { reconnectTimer = 0 }
+local lotteryThreads = {}
+
+-- ==========================================================
+-- ОЧЕРЕДЬ ОТПРАВКИ (Google)
+-- ==========================================================
+local googleQueue = {}
+local isRequestProcessing = false
+
+function queueGoogle(tableData)
+    googleQueue[#googleQueue + 1] = tableData
+end
+
+-- ==========================================================
+-- === БЛОК УПРАВЛЕНИЯ МЕТКАМИ ===
+-- ==========================================================
+function SaveBlipToDisk(blipId)
+    local ini = inicfg.load(tempIniData, tempIniFile)
+    ini.marker.lastBlipId = blipId
+    inicfg.save(ini, tempIniFile)
+end
+
+function ClearMarksSmart()
+    if activeCheckpoint then deleteCheckpoint(activeCheckpoint); activeCheckpoint = nil end
+    if activeBlip then removeBlip(activeBlip); activeBlip = nil end
+    local ini = inicfg.load(tempIniData, tempIniFile)
+    if ini and ini.marker.lastBlipId ~= -1 then
+        pcall(removeBlip, ini.marker.lastBlipId) 
+        ini.marker.lastBlipId = -1
+        inicfg.save(ini, tempIniFile)
+    end
+    local dummy = createCheckpoint(1, 0, 0, 0, 0, 0, 0, 0)
+    deleteCheckpoint(dummy)
+end
+
+-- ==========================================================
+-- === БЛОК ANTI-AFK (Для работы IRC в свернутом виде) ===
+-- ==========================================================
+function WorkInBackground(toggle)
+	memory.fill(5443925, 144, 5, true)
+	if toggle then
+		memory.write(7634870, 1, 1, true)
+		memory.write(7635034, 1, 1, true)
+		memory.fill(7623723, 144, 8, true)
+		memory.fill(5499528, 144, 6, true)
+	else
+		memory.write(7634870, 0, 1, true)
+		memory.write(7635034, 0, 1, true)
+		local var_1_0 = { 80, 81, 255, 21, 0, 131, 133, 0 }
+		memset(7623723, var_1_0)
+		local var_1_1 = { 15, 132, 123, 1, 0, 0 }
+		memset(5499528, var_1_1)
+	end
+end
+function memset(arg_1_0, arg_1_1)
+	for iter_1_0 = 1, #arg_1_1 do
+		memory.write(arg_1_0 + iter_1_0 - 1, arg_1_1[iter_1_0], 1, true)
+	end
+end
+function onWindowMessage(arg_1_0, arg_1_1, arg_1_2)
+	if arg_1_0 == wm.WM_KILLFOCUS then
+		if ircClient then WorkInBackground(true) end
+	elseif arg_1_0 == wm.WM_SETFOCUS and ircClient then
+		WorkInBackground(false)
+	end
+end
+
+-- === СЕТЬ (Google) ===
+function asyncHttpRequest(method, url, args, resolve, reject)
+    local request_thread = effil.thread(function (method, url, args)
+        local requests = require 'requests_script'
+        local result, response = pcall(requests.request, method, url, args)
+        if result then response.json, response.xml = nil, nil; return true, response 
+        else return false, response end
+    end)(method, url, args)
+    lua_thread.create(function()
+        local runner = request_thread
+        while true do
+            local status, err = runner:status()
+            if not err then
+                if status == 'completed' then 
+                    local result, response = runner:get()
+                    if result then (resolve or function() end)(response) 
+                    else (reject or function() end)(response) end 
+                    return 
+                end
+            else return (reject or function() end)(err) end
+            wait(0)
+        end
+    end)
+end
+
+function processGoogleQueue()
+    if isRequestProcessing then return end
+    if #googleQueue == 0 then return end
+    
+    local tableData = table.remove(googleQueue, 1)
+    isRequestProcessing = true
+    
+    local ok, jsonS = pcall(json.encode, tableData)
+    if not ok then 
+        isRequestProcessing = false
+        return 
+    end
+    
+    local encodedString = string.gsub(
+        u8:encode(jsonS), 
+        "([^%w %-%_%.%~])", 
+        function(c) return string.format("%%%02X", string.byte(c)) end
+    ):gsub(" ", "+")
+    
+    local function onFinish()
+        isRequestProcessing = false
+    end
+    
+    asyncHttpRequest('POST', scriptUrl, 
+        { headers = {["Content-Type"] = "application/x-www-form-urlencoded"}, data = "data=" .. encodedString }, 
+        onFinish, onFinish
+    )
+end
+
+-- ==========================================================
+-- === IRC ЛОГИКА ===
+-- ==========================================================
+function IRC_Loop()
+    while true do
+        wait(100)
+        if ircClient and ircClient.__isConnected then
+            local status, err = pcall(function() ircClient:think() end)
+            if not status and err and not tostring(err):find("timeout") then
+                print("[al] IRC Error: " .. tostring(err))
+                if ircClient then pcall(ircClient.disconnect, ircClient) end
+                ircClient = nil
+            end
+        else
+            if (os.clock() - ircState.reconnectTimer) > 15 then
+                ircState.reconnectTimer = os.clock()
+                local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                if res then 
+                    myNick = sampGetPlayerNickname(id)
+                    local ircNick = myNick .. math.random(100, 999)
+                    
+                    local tempClient = irc.new { nick = ircNick }
+                    tempClient:hook("OnChat", onIRCMessageReceived)
+                    tempClient:hook("OnDisconnect", function() ircClient = nil end)
+                    
+                    local connectStatus, connectErr = pcall(function() tempClient:connect(IRC_CONFIG.server) end)
+                    
+                    if connectStatus then
+                        if tempClient.socket then pcall(function() tempClient.socket:settimeout(0) end) end
+                        local attempts = 0
+                        while tempClient and not tempClient.__isConnected and attempts < 40 do 
+                            wait(500)
+                            pcall(function() tempClient:think() end)
+                            attempts = attempts + 1
+                        end
+                        
+                        if tempClient and tempClient.__isConnected then
+                            tempClient:join(IRC_CONFIG.channel)
+                            ircClient = tempClient 
+                        else
+                            pcall(tempClient.disconnect, tempClient)
+                            ircClient = nil
+                        end
+                    else
+                        ircClient = nil
+                    end
+                end
+            end
+        end
+    end
+end
+
+function onIRCMessageReceived(user, channel, message)
+    local status, decoded = pcall(u8.decode, u8, message)
+    if not status then decoded = message end
+    
+    if user.nick:gsub("%d%d%d$", "") == myNick then return end
+
+    -- Получение GPS метки от другого игрока
+    if decoded:find(IRC_CONFIG.tag, 1, true) and decoded:find("|") then
+        local id, x, y, z, sq = decoded:match("%" .. IRC_CONFIG.tag .. " (%d+)|([%d%.%-]+)|([%d%.%-]+)|([%d%.%-]+)|(.+)")
+        if id then
+            sampAddChatMessage(string.format("{5599FF}[IRC] {FFFFFF}%s нашел катер {FFFF00}[ID:%s]{FFFFFF} в {00FF00}%s", user.nick:gsub("%d%d%d$", ""), id, sq), -1)
+            local bx, by, bz = tonumber(x), tonumber(y), tonumber(z)
+            
+            ClearMarksSmart()
+            if activeCheckpoint then deleteCheckpoint(activeCheckpoint) end
+            activeCheckpoint = createCheckpoint(1, bx, by, bz, 0, 0, 0, 5.0)
+            if activeBlip then removeBlip(activeBlip) end
+            activeBlip = addBlipForCoord(bx, by, bz)
+            changeBlipColour(activeBlip, 0xFF0000FF)
+            SaveBlipToDisk(activeBlip)
+        end
+    end
+
+    -- Запрос на поиск (Начало лотереи)
+    if decoded:find("%[REQ_CATER%]") then
+        if not allowRemoteRequests then return end
+        local id = tonumber(decoded:match("%[REQ_CATER%] (%d+)"))
+        if id then
+            if not searchEngine.targets[id] and not searchEngine.dialogActive then
+                if lotteryThreads[id] then lotteryThreads[id]:terminate() end 
+                lotteryThreads[id] = lua_thread.create(function()
+                    local delay = math.random(500, 3000)
+                    wait(delay)
+                    if lotteryThreads[id] then
+                        lotteryThreads[id] = nil 
+                        searchEngine.targets[id] = 0
+                        IRC_SendAction("CLAIM_CATER", id)
+                    end
+                end)
+            end
+        end
+    end
+
+    -- Кто-то другой взял катер в работу (Отмена лотереи)
+    if decoded:find("%[CLAIM_CATER%]") then
+        local id = tonumber(decoded:match("%[CLAIM_CATER%] (%d+)"))
+        if id and lotteryThreads[id] then
+            lotteryThreads[id]:terminate()
+            lotteryThreads[id] = nil
+        end
+    end
+
+    -- Отмена поиска (Принудительное удаление)
+    if decoded:find("%[DELCATER%]") then
+        if not allowRemoteRequests then return end
+        local id = tonumber(decoded:match("%[DELCATER%] (%d+)"))
+        if id then
+            if searchEngine.targets[id] ~= nil then searchEngine.targets[id] = nil end
+            if lotteryThreads[id] then
+                lotteryThreads[id]:terminate()
+                lotteryThreads[id] = nil
+            end
+        end
+    end
+end
+
+function IRC_SendGPS(id, x, y, z, square)
+    if ircClient and ircClient.__isConnected then
+        local msg = string.format("%s %d|%.2f|%.2f|%.2f|%s", IRC_CONFIG.tag, id, x, y, z, square)
+        if ircClient then ircClient:sendChat(IRC_CONFIG.channel, u8(msg)) end
+    end
+end
+
+function IRC_SendAction(actionType, id)
+    if ircClient and ircClient.__isConnected then
+        local msg = string.format("%s [%s] %d", IRC_CONFIG.tag, actionType, id)
+        if ircClient then ircClient:sendChat(IRC_CONFIG.channel, u8(msg)) end
+    end
+end
+
+-- ==========================================================
+-- === ОБЪЕДИНЁННЫЙ ТИК КАТЕРОВ ===
+-- ==========================================================
+function processBoatTick()
+    local vehicles = getAllVehicles()
+    
+    local boatsList = {}
+    local currentPresence = {}
+    
+    for _, v in ipairs(vehicles) do
+        if doesVehicleExist(v) and getCarModel(v) == 595 then
+            local res, vid = sampGetVehicleIdByCarHandle(v)
+            local sampId = (res and vid) or 0
+            
+            if res and TARGET_BOAT_IDS[sampId] then
+                currentPresence[sampId] = true
+            end
+            
+            local driverName = "Пустой"
+            local driverId = -1
+            local driver = getDriverOfCar(v)
+            if driver ~= -1 and doesCharExist(driver) then
+                local r, pid = sampGetPlayerIdByCharHandle(driver)
+                if r then
+                    driverName = sampGetPlayerNickname(pid) or ("Unknown_" .. pid)
+                    driverId = pid
+                end
+            end
+            
+            boatsList[#boatsList + 1] = {
+                veh_id = sampId,
+                driver_name = driverName,
+                driver_id = driverId
+            }
+        end
+    end
+    
+    -- === ОТЧЁТ ===
+    table.sort(boatsList, function(a, b) return a.veh_id < b.veh_id end)
+    local parts = {}
+    for _, b in ipairs(boatsList) do
+        parts[#parts + 1] = b.veh_id .. "|" .. b.driver_name
+    end
+    local state = table.concat(parts, ";")
+    if state ~= lastReportState then
+        lastReportState = state
+        if #boatsList > 0 then
+            queueGoogle({type="boats", list=boatsList}) 
+        end
+    end
+    
+    -- === МОНИТОРИНГ СПАВНА ===
+    if trackingMode == 1 or trackingMode == 2 then
+        for id, _ in pairs(TARGET_BOAT_IDS) do
+            local wasHere = boatSpawnState[id]
+            local isHere = currentPresence[id] or false
+            
+            if wasHere and not isHere then
+                if id == 615 then
+                    queueGoogle({type="manual_alert", id=id})
+                    IRC_SendAction("MANUAL_ALARM", id)
+                else
+                    if trackingMode == 1 then
+                        searchEngine.targets[id] = 0
+                    elseif trackingMode == 2 then
+                        IRC_SendAction("REQ_CATER", id) -- Раздаем задачу по IRC
+                    end
+                end
+            elseif not wasHere and isHere then
+                if id == 615 then
+                    IRC_SendAction("MANUAL_RETURN", id)
+                else
+                    if trackingMode == 1 then
+                        searchEngine.targets[id] = nil
+                        if searchEngine.currentTarget == id then
+                            searchEngine.waitingForGPS = false
+                            searchEngine.dialogActive = false
+                        end
+                    elseif trackingMode == 2 then
+                        IRC_SendAction("DELCATER", id) -- Отменяем задачу в IRC
+                    end
+                end
+            end
+            boatSpawnState[id] = isHere
+        end
+    end
+end
+
+-- ==========================================================
+-- === ОБЪЕДИНЁННЫЙ ТИК КАРГОБОБОВ ===
+-- ==========================================================
+function processCargobobTick()
+    local vehicles = getAllVehicles()
+    
+    local cargobobList = {}
+    local currentPresence = {}
+    
+    for _, v in ipairs(vehicles) do
+        if doesVehicleExist(v) and getCarModel(v) == CARGOBOB_MODEL then
+            local res, vid = sampGetVehicleIdByCarHandle(v)
+            local sampId = (res and vid) or 0
+            
+            if res and vid then
+                currentPresence[vid] = true
+                knownCargobobIds[vid] = true
+            end
+            
+            local driverName = "Пустой"
+            local driverId = -1
+            local driver = getDriverOfCar(v)
+            if driver ~= -1 and doesCharExist(driver) then
+                local r, pid = sampGetPlayerIdByCharHandle(driver)
+                if r then
+                    driverName = sampGetPlayerNickname(pid) or ("Unknown_" .. pid)
+                    driverId = pid
+                end
+            end
+            
+            cargobobList[#cargobobList + 1] = {
+                veh_id = sampId,
+                driver_name = driverName,
+                driver_id = driverId
+            }
+        end
+    end
+    
+    table.sort(cargobobList, function(a, b) return a.veh_id < b.veh_id end)
+    local parts = {}
+    for _, b in ipairs(cargobobList) do
+        parts[#parts + 1] = b.veh_id .. "|" .. b.driver_name
+    end
+    local state = table.concat(parts, ";")
+    if state ~= lastCargobobReportState then
+        lastCargobobReportState = state
+        queueGoogle({type="cargobobs", list=cargobobList})
+    end
+    
+    for id, _ in pairs(knownCargobobIds) do
+        local wasHere = cargobobSpawnState[id]
+        local isHere = currentPresence[id] or false
+        
+        if wasHere and not isHere then
+            sampAddChatMessage(string.format("{FF6600}[Cargobob] {FFFFFF}Каргобоб {FFFF00}[ID:%d]{FFFFFF} покинул зону!", id), -1)
+            queueGoogle({type="cargobob_gone", id=id})
+        elseif not wasHere and isHere then
+            sampAddChatMessage(string.format("{FF6600}[Cargobob] {FFFFFF}Каргобоб {00FF00}[ID:%d]{FFFFFF} обнаружен.", id), -1)
+        end
+        cargobobSpawnState[id] = isHere
+    end
+end
+
+-- ==========================================================
+-- === MAIN ===
+-- ==========================================================
+function main()
+    if not isSampLoaded() or not isSampfuncsLoaded() then return end
+    while not isSampAvailable() do wait(100) end
+
+    if autoupdate_loaded and enable_autoupdate and Update then
+        pcall(Update.check, Update.json_url, Update.prefix, Update.url)
+    end
+    
+    if not doesFileExist("moonloader/config/"..tempIniFile) then
+        inicfg.save(tempIniData, tempIniFile)
+    end
+
+    ClearMarksSmart()
+
+    sampRegisterChatCommand("al", cmd_toggle)
+    sampRegisterChatCommand("findcater", cmd_findcater)
+    sampRegisterChatCommand("cancelcater", cmd_cancelcater)
+    sampRegisterChatCommand("findlist", cmd_findlist)
+    sampRegisterChatCommand("delmark", cmd_delmark)
+    
+    -- IRC команды
+    sampRegisterChatCommand("pladdcater", cmd_pladdcater)
+    sampRegisterChatCommand("pldelcater", cmd_pldelcater)
+    sampRegisterChatCommand("alreq", cmd_alreq)
+
+    sampAddChatMessage("al v11.0 loaded.", -1)
+
+    -- Запуск потока IRC
+    lua_thread.create(IRC_Loop)
+
+    while true do
+        local now = os.clock()
+
+        if isWorking and (now - lastTickTime > 1.2) then
+            lastTickTime = now
+            
+            if trackingMode ~= 4 then
+                pcall(processBoatTick)
+            else
+                pcall(processCargobobTick)
+            end
+            
+            pcall(checkDeathLogic)
+        end
+
+        processSearchQueue()
+        processGoogleQueue()
+
+        wait(100)
+    end
+end
+
+-- === ЛОГИКА ПОИСКА ===
+function processSearchQueue()
+    if searchEngine.dialogActive or searchEngine.waitingForGPS then return end
+    if (os.clock() - searchEngine.lastRequestTime) < 2.5 then return end
+
+    local candidateId = -1
+    local now = os.clock()
+    for id, lastCheck in pairs(searchEngine.targets) do
+        if (now - lastCheck) > 20 then candidateId = id; break end
+    end
+
+    if candidateId ~= -1 then
+        searchEngine.currentTarget = candidateId
+        searchEngine.targets[candidateId] = now 
+        searchEngine.lastRequestTime = now      
+        searchEngine.dialogActive = true
+        sampSendChat("/trackerlist")
+    end
+end
+
+-- === КОМАНДЫ ===
+function cmd_toggle(arg) 
+    local mode = tonumber(arg)
+    if mode == 1 or mode == 2 or mode == 3 or mode == 4 then
+        trackingMode = mode
+        isWorking = true
+
+        if mode == 4 then
+            lastCargobobReportState = nil
+            cargobobSpawnState = {}
+            knownCargobobIds = {}
+        end
+
+    elseif arg == "" then
+        isWorking = not isWorking
+        if isWorking == false then
+            cmd_cancelcater()
+        end
+    else
+        sampAddChatMessage("Используйте: /al [1-Solo, 2-Squad, 3-Monitor, 4-Cargobob]", -1)
+        return
+    end
+    
+    local modeName = ""
+    if trackingMode == 1 then modeName = "{00FFFF}SOLO (FindCater)"
+    elseif trackingMode == 2 then modeName = "{FF00FF}SQUAD (IRC)"
+    elseif trackingMode == 3 then modeName = "{FFFF00}PASSIVE (Monitor Only)"
+    elseif trackingMode == 4 then modeName = "{FF6600}CARGOBOB (Monitor 548)"
+    end
+    
+    if isWorking then
+        sampAddChatMessage("al: {00FF00}Включен", -1)
+        sampAddChatMessage("Режим: " .. modeName, -1)
+        if trackingMode ~= 4 then
+            for id, _ in pairs(TARGET_BOAT_IDS) do boatSpawnState[id] = false end
+            lastReportState = nil
+        end
+    else
+        sampAddChatMessage("al: {FF0000}Выключен", -1)
+    end
+end
+
+function cmd_findcater(arg) 
+    local id = tonumber(arg)
+    if id then 
+        searchEngine.targets[id] = 0 
+        sampAddChatMessage("Катер ID:" .. id .. " добавлен в поиск.", 0x00FA9A) 
+    end 
+end
+
+function cmd_cancelcater(arg) 
+    local id = tonumber(arg)
+    if id then searchEngine.targets[id] = nil else searchEngine.targets = {} end
+    searchEngine.dialogActive = false
+    searchEngine.waitingForGPS = false
+    if activeCheckpoint then deleteCheckpoint(activeCheckpoint); activeCheckpoint = nil end
+    if activeBlip then removeBlip(activeBlip); activeBlip = nil end
+    sampAddChatMessage("Поиск остановлен.", 0xFF0000) 
+end
+
+function cmd_findlist() 
+    sampAddChatMessage("--- Активные поиски ---", 0x00FA9A)
+    for id, _ in pairs(searchEngine.targets) do sampAddChatMessage("ID: " .. id, -1) end 
+end
+
+function cmd_delmark()
+    ClearMarksSmart()
+    sampAddChatMessage("Все метки удалены.", 0x00FA9A)
+end
+
+function cmd_pladdcater(arg)
+    local id = tonumber(arg)
+    if id then
+        sampAddChatMessage("Отправлен запрос на поиск катера ID: " .. id, 0x00FA9A)
+        IRC_SendAction("REQ_CATER", id) 
+    else
+        sampAddChatMessage("Используйте: /pladdcater [id]", -1)
+    end
+end
+
+function cmd_pldelcater(arg)
+    local id = tonumber(arg)
+    if id then
+        sampAddChatMessage("Отмена отслеживания катера ID: " .. id, 0xFF0000)
+        IRC_SendAction("DELCATER", id)
+    else
+        sampAddChatMessage("Используйте: /pldelcater [id]", -1)
+    end
+end
+
+function cmd_alreq()
+    allowRemoteRequests = not allowRemoteRequests
+    sampAddChatMessage("Прием запросов IRC: " .. (allowRemoteRequests and "{00FF00}Включен" or "{FF0000}Выключен"), -1)
+end
+
+-- === СОБЫТИЯ SAMP ===
+function sampev.onShowDialog(id, style, title, button1, button2, text)
+    if id == 32700 and searchEngine.dialogActive then
+        local target = searchEngine.currentTarget
+        local lineIndex = 0
+        for line in text:gmatch("[^\r\n]+") do
+            lineIndex = lineIndex + 1
+            if line:find("%[ID:" .. target .. "%]") then
+                sampSendDialogResponse(id, 1, lineIndex - 2, "") 
+                searchEngine.dialogActive = false
+                searchEngine.waitingForGPS = true
+                return false
+            end
+        end
+        searchEngine.targets[target] = nil
+        searchEngine.dialogActive = false
+        sampSendDialogResponse(id, 0, -1, "")
+        return false 
+    end
+end
+
+function sampev.onSetRaceCheckpoint(type, position, nextPos, size)
+    if searchEngine.waitingForGPS then 
+        outputCoords(searchEngine.currentTarget, position.x, position.y, position.z)
+        searchEngine.waitingForGPS = false 
+    end 
+end
+
+function sampev.onSetCheckpoint(position, radius)
+    if searchEngine.waitingForGPS then 
+        outputCoords(searchEngine.currentTarget, position.x, position.y, position.z)
+        searchEngine.waitingForGPS = false 
+    end 
+end
+
+function sampev.onSendTakeDamage(playerId, damage, weapon, bodypart) 
+    if isWorking then lastDamage.id = playerId; lastDamage.weapon = weapon; lastDamage.time = os.time() end 
+end
+
+function sampev.onServerMessage(color, text)
+    if searchEngine.currentTarget ~= -1 and searchEngine.targets[searchEngine.currentTarget] then
+        if text:find("Пункт назначения выбран") and text:find("Транспорт организации") then
+            return false
+        end
+    end
+end
+
+-- === ХЕЛПЕРЫ ===
+function checkDeathLogic()
+    local hp = getCharHealth(PLAYER_PED)
+    if hp <= 0 and not wasDead then
+        wasDead = true
+        local killerInfo = "Суицид/Окружение"
+        if lastDamage.id ~= -1 and (os.time() - lastDamage.time) < 15 then
+            local nick = sampIsPlayerConnected(lastDamage.id) and sampGetPlayerNickname(lastDamage.id) or "Unknown"
+            killerInfo = string.format("Убийца: %s (ID: %d)", nick, lastDamage.id)
+        end
+        queueGoogle({type="alert", info=killerInfo, weapon=getWeaponName(lastDamage.weapon)})
+        isWorking = false
+        cmd_cancelcater()
+    elseif hp > 0 then wasDead = false end
+end
+
+function outputCoords(id, x, y, z)
+    local kv = getSquareByCoords(x, y)
+    local IGNORED_SQUARES = {
+        ["М-7"]=true, ["М-8"]=true, ["Л-8"]=true, ["Л-7"]=true,
+        ["К-7"]=true, ["И-7"]=true, ["З-7"]=true, ["З-6"]=true,
+        ["Ж-6"]=true, ["Ж-5"]=true, ["З-5"]=true
+    }
+    if IGNORED_SQUARES[kv] then return end
+    sampAddChatMessage(string.format("Катер [%d]: Квадрат {00FF00}%s", id, kv), 0x00FA9A)
+    IRC_SendGPS(id, x, y, z, kv) -- Отправка найденной метки в IRC
+    queueGoogle({type="gps_alert", id=id, square=kv})
+end
+
+function getSquareByCoords(x, y)
+    local KV = {[1]="А",[2]="Б",[3]="В",[4]="Г",[5]="Д",[6]="Ж",[7]="З",[8]="И",[9]="К",[10]="Л",[11]="М",[12]="Н",[13]="О",[14]="П",[15]="Р",[16]="С",[17]="Т",[18]="У",[19]="Ф",[20]="Х",[21]="Ц",[22]="Ч",[23]="Ш",[24]="Я"}
+    local gx = math.ceil((x + 3000) / 250); if gx<1 then gx=1 end; if gx>24 then gx=24 end
+    local gy = math.ceil((y * -1 + 3000) / 250); if gy<1 then gy=1 end; if gy>24 then gy=24 end
+    return (KV[gy] or "?") .. "-" .. gx
+end
+
+function getWeaponName(id)
+    local names = {
+        [0]="Fist",[1]="Brass Knuckles",[2]="Golf Club",[3]="Nightstick",[4]="Knife",[5]="Bat",
+        [6]="Shovel",[7]="Pool Cue",[8]="Katana",[9]="Chainsaw",[10]="Dildo",[11]="Dildo 2",
+        [12]="Vibrator",[13]="Vibrator 2",[14]="Flowers",[15]="Cane",[16]="Grenade",[17]="Tear Gas",
+        [18]="Molotov",[22]="Colt 45",[23]="Silenced",[24]="Deagle",[25]="Shotgun",[26]="Sawnoff",
+        [27]="Combat Shotgun",[28]="Uzi",[29]="MP5",[30]="AK-47",[31]="M4",[32]="Tec-9",
+        [33]="Rifle",[34]="Sniper",[35]="RPG",[36]="Heatseeker",[37]="Flamethrower",[38]="Minigun",
+        [39]="Satchel",[40]="Detonator",[41]="Spraycan",[42]="Extinguisher",[43]="Camera",
+        [44]="Night Vision",[45]="Thermal Vision",[46]="Parachute",[49]="Vehicle Ram",[50]="Helicopter Blades",
+        [51]="Explosion",[53]="Drowned",[54]="Collision"
+    }
+    return names[id]
+end
